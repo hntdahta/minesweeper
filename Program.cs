@@ -1,57 +1,77 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-public class Test
+namespace minesweeper
 {
-    public static int[][] minesweeper(bool[][] matrix)
+    class Program
     {
-        int[][] result = new int[matrix.Length][];
-        for (int i = 0; i < matrix.Length; i++)
+        static void Main(string[] args)
         {
-            result[i] = new int[matrix[0].Length];
-        }
-        for (int i = 0; i < matrix.Length; i++)
-        {
-            for (int j = 0; j < matrix[0].Length; j++)
+            string[,] map = {
+            {"*", ".", ".", "."},
+            {".", ".", ".", "."},
+            {".", "*", ".", "."},
+            {".", ".", ".", "."}
+        };
+            int MAP_HEIGHT = map.GetLength(0);
+            int MAP_WIDTH = map.GetLength(1);
+
+            string[,] mapReport = new string[MAP_HEIGHT, MAP_WIDTH];
+            for (int yOrdinate = 0; yOrdinate < MAP_HEIGHT; yOrdinate++)
             {
-                if (matrix[i][j])
+                for (int xOrdinate = 0; xOrdinate < map.GetLength(0); xOrdinate++)
                 {
-                    //Row Above
-                    if (i - 1 >= 0)
+                    string curentCell = map[yOrdinate, xOrdinate];
+                    if (curentCell.Equals("*"))
                     {
-                        if (j - 1 >= 0) result[i - 1][j - 1]++;
-                        result[i - 1][j]++;
-                        if (j + 1 < result[i].Length) result[i - 1][j + 1]++;
+                        mapReport[yOrdinate, xOrdinate] = "*";
                     }
-                    //Row
-                    if (j - 1 >= 0) result[i][j - 1]++;
-                    if (j + 1 < matrix[i].Length) result[i][j + 1]++;
-                    //Row Below
-                    if (i + 1 < matrix.Length)
+                    else
                     {
-                        if (j - 1 >= 0) result[i + 1][j - 1]++;
-                        result[i + 1][j]++;
-                        if (j + 1 < matrix[i].Length) result[i + 1][j + 1]++;
+                        int[,] NEIGHBOURS_ORDINATE = {
+                        {yOrdinate - 1, xOrdinate - 1}, {yOrdinate - 1, xOrdinate}, {yOrdinate - 1, xOrdinate + 1},
+                        {yOrdinate, xOrdinate - 1}, {yOrdinate, xOrdinate + 1},
+                        {yOrdinate + 1, xOrdinate - 1}, {yOrdinate + 1, xOrdinate}, {yOrdinate + 1, xOrdinate + 1},};
+
+                        int minesAround = 0;
+                        int length = NEIGHBOURS_ORDINATE.GetLength(0);
+                        for (int i = 0; i < length; i++)
+                        {
+                            int xOrdinateOfNeighbour = NEIGHBOURS_ORDINATE[i, 1];
+                            int yOrdinateOfNeighbour = NEIGHBOURS_ORDINATE[i, 0];
+
+                            bool isOutOfMapNeighbour = xOrdinateOfNeighbour < 0
+                                    || xOrdinateOfNeighbour == MAP_WIDTH
+                                    || yOrdinateOfNeighbour < 0
+                                    || yOrdinateOfNeighbour == MAP_HEIGHT;
+                            if (isOutOfMapNeighbour)
+                            {
+                                continue;
+                            }
+
+                            bool isMineOwnerNeighbour = map[yOrdinateOfNeighbour, xOrdinateOfNeighbour].Equals("*");
+                            if (isMineOwnerNeighbour)
+                            {
+                                minesAround++;
+                            }
+                        }
+
+                        mapReport[yOrdinate, xOrdinate] = minesAround.ToString();
                     }
                 }
             }
-        }
-        return result;
-    }
-    public static void Main()
-    {
-        bool[][] matrix = new bool[][]{
-       new bool []{true, false, false},
-             new bool []{false, true, false},
-                new bool []{false, false, false}
-      };
-        var result = minesweeper(matrix);
-        foreach (int[] i in result)
-        {
-            foreach (int j in i)
+
+            for (int yOrdinate = 0; yOrdinate < MAP_HEIGHT; yOrdinate++)
             {
-                Console.Write(j + " ");
+                Console.WriteLine("\n");
+                for (int xOrdinate = 0; xOrdinate < MAP_WIDTH; xOrdinate++)
+                {
+                    String currentCellReport = mapReport[yOrdinate, xOrdinate];
+                    Console.Write(currentCellReport);
+                }
             }
-            Console.WriteLine();
+            Console.ReadLine();
         }
     }
 }
